@@ -1,0 +1,5 @@
+.venv/
+.venv312/
+
+data_storage/**/*.npz
+cache_*/
