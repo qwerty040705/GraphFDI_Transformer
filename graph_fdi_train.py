@@ -1283,4 +1283,26 @@ python3 graph_fdi_train.py \
   --motor_freeze_epochs 8 \
   --label_smoothing 0.05 \
   --log_csv link5_train_log.csv
+
+
+python3 graph_fdi_train.py \
+  --data_dir /home/user/transformer_fault_diagnosis/data_storage/link_10 \
+  --shard_first 1 --shard_last 6 \
+  --epochs 80 \
+  --batch_size 2 \
+  --device cuda \
+  --motor_geom /home/user/transformer_fault_diagnosis/motor_geom_link10.npz \
+  --temporal transformer \
+  --d_model 384 --heads 6 --depth 5 --dropout 0.1 \
+  --T_win 128 --stride 64 \
+  --lr 5e-5 --weight_decay 1e-4 \
+  --apply_post --post_k 3 --post_n 5 --post_up 0.6 --post_down 0.4 \
+  --eval_test_each_epoch 1 \
+  --num_workers 4 \
+  --cache_windows 1 --cache_dir ./cache_L10 --cache_dtype fp32 \
+  --amp 1 \
+  --lambda_l1 1.0 --lambda_l2 1.0 --lambda_l3 1.0 \
+  --motor_freeze_epochs 8 \
+  --label_smoothing 0.05 \
+  --log_csv link10_train_log.csv
 """

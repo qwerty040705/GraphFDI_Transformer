@@ -3,3 +3,8 @@
 
 data_storage/**/*.npz
 cache_*/
+cache_eval_L1
+cache_eval_L2
+cache_eval_L3
+cache_eval_L4
+cache_eval_L5

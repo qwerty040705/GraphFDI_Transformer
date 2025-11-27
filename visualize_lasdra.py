@@ -819,12 +819,12 @@ if __name__ == "__main__":
     main()
 """
 python3 visualize_lasdra.py \
-  --ckpt /home/user/transformer_fault_diagnosis/GraphFDI_Transformer_L4/GraphFDI_Transformer_L4.pth \
-  --data_dir /home/user/transformer_fault_diagnosis/data_storage/link_4 \
-  --znorm /home/user/transformer_fault_diagnosis/GraphFDI_Transformer_L4/znorm_link4.npz \
+  --ckpt /home/user/transformer_fault_diagnosis/GraphFDI_Transformer_L5/GraphFDI_Transformer_L5.pth \
+  --data_dir /home/user/transformer_fault_diagnosis/data_storage/link_5 \
+  --znorm /home/user/transformer_fault_diagnosis/GraphFDI_Transformer_L5/znorm_link5.npz \
   --shard_first 1 --shard_last 5 \
-  --seq_idx 13 \
-  --motor_geom /home/user/transformer_fault_diagnosis/motor_geom_link4.npz \
+  --seq_idx 12 \
+  --motor_geom /home/user/transformer_fault_diagnosis/motor_geom_link5.npz \
   --theta_motor 0.8 \
   --kofn_k 8 \
   --kofn_n 10 \
@@ -834,17 +834,17 @@ python3 visualize_lasdra.py \
 
 """
 python3 visualize_lasdra.py \
-  --ckpt /home/user/transformer_fault_diagnosis/GraphFDI_Transformer_L4/GraphFDI_Transformer_L4.pth \
-  --data_dir /home/user/transformer_fault_diagnosis/data_storage/link_4 \
-  --znorm /home/user/transformer_fault_diagnosis/GraphFDI_Transformer_L4/znorm_link4.npz \
+  --ckpt /home/user/transformer_fault_diagnosis/GraphFDI_Transformer_L5/GraphFDI_Transformer_L5.pth \
+  --data_dir /home/user/transformer_fault_diagnosis/data_storage/link_5 \
+  --znorm /home/user/transformer_fault_diagnosis/GraphFDI_Transformer_L5/znorm_link5.npz \
   --shard_first 1 --shard_last 5 \
-  --seq_idx 13 \
-  --motor_geom /home/user/transformer_fault_diagnosis/motor_geom_link4.npz \
+  --seq_idx 12 \
+  --motor_geom /home/user/transformer_fault_diagnosis/motor_geom_link5.npz \
   --theta_motor 0.8 \
   --kofn_k 8 \
   --kofn_n 10 \
   --save_video 1 \
-  --out /home/user/transformer_fault_diagnosis/lasdra_link4.mp4 \
+  --out /home/user/transformer_fault_diagnosis/lasdra_link5.mp4 \
   --video_fps 60 \
   --dpi 150
 """

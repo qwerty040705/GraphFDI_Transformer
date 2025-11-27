@@ -117,3 +117,15 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+"""
+python3 compute_znorm.py \
+  --ckpt /home/user/transformer_fault_diagnosis/GraphFDI_Transformer_L2/GraphFDI_Transformer_L2.pth \
+  --data_dir /home/user/transformer_fault_diagnosis/data_storage/link_2 \
+  --shard_first 1 \
+  --shard_last 4 \
+  --motor_geom /home/user/transformer_fault_diagnosis/motor_geom_link2.npz
+
+"""

@@ -108,67 +108,111 @@ def sample_on_cone(axis, alpha_max):
 # ------------------------------------------------------------
 # Desired SE(3) 궤적 생성기
 # ------------------------------------------------------------
+def sample_uniform_s2():
+    v = np.random.normal(size=3)
+    return v / (np.linalg.norm(v) + 1e-12)
+
+
+def sample_on_circle(axis, theta):
+    axis = axis / (np.linalg.norm(axis) + 1e-12)
+    # axis에 수직인 u, v 만들기
+    tmp = np.array([0.0, 0.0, 1.0])
+    if abs(axis @ tmp) > 0.9:
+        tmp = np.array([1.0, 0.0, 0.0])
+    u = tmp - (tmp @ axis) * axis
+    u /= (np.linalg.norm(u) + 1e-12)
+    v = np.cross(axis, u)
+    phi = np.random.uniform(0.0, 2.0 * np.pi)
+    dir_vec = (
+        np.cos(theta) * axis
+        + np.sin(theta) * (np.cos(phi) * u + np.sin(phi) * v)
+    )
+    return dir_vec / (np.linalg.norm(dir_vec) + 1e-12)
+
+
 def generate_random_se3_series(
     fk_solver, q0, link_count, link_length, T=200,
     max_pos_step=0.004, max_rot_step=0.01, max_try=30,
 ):
-    ℓ = float(link_length); n = link_count
+    ℓ = float(link_length)
+    n = link_count
+
     T0 = fk_solver.compute_end_effector_frame(q0.reshape(-1))
     p_cur = T0[:3, 3].copy()
     R_cur = R.from_matrix(T0[:3, :3])
-    T_series = [T0]; r_max = n * ℓ
+    T_series = [T0]
+    r_max = n * ℓ
 
     for _ in range(1, T):
         for _try in range(max_try):
+            # --- 위치 후보 ---
             p_cand = p_cur + np.random.uniform(-max_pos_step, max_pos_step, size=3)
             r = np.linalg.norm(p_cand)
+
             if n == 1:
                 p_cand = p_cand / (r + 1e-12) * ℓ
+                r = ℓ
             else:
                 if r > r_max:
                     p_cand *= (r_max / (r + 1e-12))
                     r = r_max
 
+            # --- 방향 후보 ---
             if n == 1:
                 roll = np.random.uniform(-max_rot_step, max_rot_step)
-                R_new = align_z_to(p_cand / ℓ) * R.from_rotvec(np.array([0, 0, roll]))
+                R_new = align_z_to(p_cand / ℓ) * R.from_rotvec(np.array([0.0, 0.0, roll]))
+
             elif n == 2:
-                if r <= ℓ + 1e-12:
-                    R_new = random_so3()
-                elif r >= 2*ℓ - 1e-12:
+                if r <= 1e-12:
+                    # p ≈ 0: 아무 방향이나
+                    z_dir = sample_uniform_s2()
                     roll = np.random.uniform(-max_rot_step, max_rot_step)
-                    R_new = align_z_to(p_cand / r) * R.from_rotvec(np.array([0, 0, roll]))
+                    R_new = align_z_to(z_dir) * R.from_rotvec([0, 0, roll])
+                elif r >= 2 * ℓ - 1e-12:
+                    # 완전 일자
+                    roll = np.random.uniform(-max_rot_step, max_rot_step)
+                    R_new = align_z_to(p_cand / r) * R.from_rotvec([0, 0, roll])
                 else:
-                    alpha_max = np.arccos(np.clip(r / (2*ℓ), -1.0, 1.0))
-                    z_dir = sample_on_cone(p_cand / r, alpha_max)
+                    # 0 < r < 2ℓ : circle 위
+                    theta = np.arccos(np.clip(r / (2 * ℓ), -1.0, 1.0))
+                    z_dir = sample_on_circle(p_cand / r, theta)
                     roll = np.random.uniform(-max_rot_step, max_rot_step)
-                    R_new = align_z_to(z_dir) * R.from_rotvec(np.array([0, 0, roll]))
+                    R_new = align_z_to(z_dir) * R.from_rotvec([0, 0, roll])
             else:
-                s = n*ℓ - r
-                if s >= 2*ℓ - 1e-12:
-                    R_new = random_so3()
-                elif s <= 1e-12:
+                s = n * ℓ - r
+                if s >= 2 * ℓ - 1e-12:
+                    # z축만 균일, roll 제한
+                    z_dir = sample_uniform_s2()
                     roll = np.random.uniform(-max_rot_step, max_rot_step)
-                    R_new = align_z_to(p_cand / r) * R.from_rotvec(np.array([0, 0, roll]))
+                    R_new = align_z_to(z_dir) * R.from_rotvec([0, 0, roll])
+                elif s <= 1e-12:
+                    # 거의 최대 신장
+                    roll = np.random.uniform(-max_rot_step, max_rot_step)
+                    R_new = align_z_to(p_cand / r) * R.from_rotvec([0, 0, roll])
                 else:
                     alpha_max = np.arccos(
-                        np.clip((r**2 + ℓ**2 - (n-1)**2 * ℓ**2) / (2*r*ℓ), -1.0, 1.0)
+                        np.clip(
+                            (r**2 + ℓ**2 - (n - 1) ** 2 * ℓ**2) / (2 * r * ℓ),
+                            -1.0,
+                            1.0,
+                        )
                     )
                     z_dir = sample_on_cone(p_cand / r, alpha_max)
                     roll = np.random.uniform(-max_rot_step, max_rot_step)
-                    R_new = align_z_to(z_dir) * R.from_rotvec(np.array([0, 0, roll]))
+                    R_new = align_z_to(z_dir) * R.from_rotvec([0, 0, roll])
 
             T_new = np.eye(4)
             T_new[:3, :3] = R_new.as_matrix()
             T_new[:3, 3] = p_cand
+
             if np.all(np.isfinite(T_new)):
                 T_series.append(T_new)
                 p_cur, R_cur = p_cand, R_new
                 break
         else:
             T_series.append(T_series[-1].copy())
-    return T_series
 
+    return T_series
 # ---------------- helpers: per-link transforms ----------------
 def _exp_se3_from_Aset(fk_solver, j_idx, theta):
     xi = fk_solver.Aset[:, j_idx]
